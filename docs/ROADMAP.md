@@ -1,5 +1,7 @@
 # Roadmap & known limits
 
+See [PHASES.md](PHASES.md) for the per-phase build log.
+
 ## What phase 5 did not get to verify
 
 **`docker build` has not been executed in this environment** (no Docker daemon available in

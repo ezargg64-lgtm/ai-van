@@ -10,7 +10,7 @@ import { occupancy } from './occupancy';
 import { livingSim } from './livingSim';
 import { bubbleSnippet, cancelAllPending, clearBubble, later, say, writeAgent } from './writer';
 import { useVan } from './vanStore';
-import type { Pose } from './types';
+import type { Pose, ZoneId } from './types';
 
 export const HUDDLE_ORDER = ['dana', 'uma', 'quinn', 'michael', 'rio'];
 
@@ -208,15 +208,13 @@ export const taskStaging = {
     }
   },
 
-  isTaskActive() {
-    return activeTask !== null;
-  },
-
+  /** Introspection for the console: is a task running, and who is sitting where. */
   debugZones() {
     const out: string[] = [];
-    for (const [zone, def] of Object.entries(ZONES)) {
-      const free = occupancy.freeSlots(zone as keyof typeof ZONES).length;
-      out.push(`${zone}: ${def.slots.length - free}/${def.slots.length}`);
+    for (const zone of Object.keys(ZONES)) {
+      const z = zone as ZoneId;
+      const free = occupancy.freeSlots(z).length;
+      out.push(`${zone}: ${ZONES[z].slots.length - free}/${ZONES[z].slots.length}`);
     }
     return out.join(' · ');
   },

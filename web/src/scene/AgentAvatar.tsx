@@ -21,7 +21,7 @@ function PropMesh({ propId, color }: { propId: PropId; color: string }) {
   switch (propId) {
     case 'laptop':
       return (
-        <group position={[0, 0.02, 0.26]} rotation={[-0.12, 0, 0]}>
+        <group position={[0, 0.2, 0.27]} rotation={[-0.12, 0, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.34, 0.02, 0.24]} />
             <meshStandardMaterial color="#5b6068" metalness={0.4} roughness={0.5} />
@@ -40,7 +40,7 @@ function PropMesh({ propId, color }: { propId: PropId; color: string }) {
       );
     case 'book':
       return (
-        <group position={[0, 0.1, 0.24]} rotation={[-0.5, 0.06, 0]}>
+        <group position={[0, 0.3, 0.25]} rotation={[-0.5, 0.06, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.24, 0.04, 0.18]} />
             <meshStandardMaterial color={color} roughness={0.85} />
@@ -53,7 +53,7 @@ function PropMesh({ propId, color }: { propId: PropId; color: string }) {
       );
     case 'handheld':
       return (
-        <group position={[0, 0.18, 0.24]} rotation={[-0.45, 0, 0]}>
+        <group position={[0, 0.34, 0.25]} rotation={[-0.45, 0, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.22, 0.04, 0.11]} />
             <meshStandardMaterial color="#31353b" roughness={0.5} />
@@ -266,7 +266,8 @@ export function AgentAvatar({ id }: { id: string }) {
     A.bodyPitch = damp(A.bodyPitch, D.bodyPitch, lambda, dt);
     A.bodyRoll = damp(A.bodyRoll, D.bodyRoll, lambda * 0.8, dt);
     A.torso = damp(A.torso, D.torso + (st.activity === 'coding' ? 0.06 : 0), lambda, dt);
-    A.head = damp(A.head, D.head + (st.speaking ? speak * 0.05 : 0) + (st.activity === 'coding' ? 0.16 : 0), lambda, dt);
+    const lookDown = st.activity === 'coding' ? 0.16 : st.activity === 'gaming' ? 0.3 : st.activity === 'reading' ? 0.22 : 0;
+    A.head = damp(A.head, D.head + (st.speaking ? speak * 0.05 : 0) + lookDown, lambda, dt);
     A.headYaw = damp(A.headYaw, headLook + D.headYaw * (1 - wb), lambda, dt);
     A.thighL = damp(A.thighL, D.thighL + thighWalk, lambda, dt);
     A.thighR = damp(A.thighR, D.thighR - thighWalk, lambda, dt);
@@ -418,9 +419,16 @@ export function AgentAvatar({ id }: { id: string }) {
                 <sphereGeometry args={[BODY.handRadius, 8, 6]} />
                 <meshStandardMaterial color={look.skin} roughness={0.9} />
               </mesh>
-              {propId ? <PropMesh propId={propId} color={look.skin} /> : null}
+              {propId === 'mug' || propId === 'kettle' ? (
+                <PropMesh propId={propId} color={look.skin} />
+              ) : null}
             </group>
           </group>
+
+          {/* props that sit in front of the body rather than in the hand */}
+          {propId && propId !== 'mug' && propId !== 'kettle' ? (
+            <PropMesh propId={propId} color={look.skin} />
+          ) : null}
 
           {/* head */}
           <group ref={head} position={[0, BODY.headOffset, 0]}>

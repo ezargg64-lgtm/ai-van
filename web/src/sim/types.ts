@@ -51,5 +51,3 @@ export type VanAgentState = {
   speaking: boolean;
   zzz: boolean;
 };
-
-export const POSE_SEATED: Pose[] = ['sit-upright', 'sit-crossleg', 'lounge'];

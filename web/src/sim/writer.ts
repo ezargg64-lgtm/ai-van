@@ -13,10 +13,6 @@ export function writeAgent(id: string, patch: Partial<VanAgentState>) {
   useVan.getState().setAgent(id, patch);
 }
 
-export function writeAll(patch: Partial<VanAgentState>) {
-  for (const id of useVan.getState().order) writeAgent(id, patch);
-}
-
 /** Show a short floating bubble for `ms`, then clear it. */
 export function say(id: string, text: string, ms = 5200) {
   const key = `bubble:${id}:${seq++}`;

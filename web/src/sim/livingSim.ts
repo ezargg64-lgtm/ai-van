@@ -100,6 +100,7 @@ class LivingSim {
     });
   }
 
+  /** Introspection: used by the test suite and for debugging in the console. */
   planOf(id: string) {
     return this.plans.get(id);
   }

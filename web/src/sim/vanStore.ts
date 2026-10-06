@@ -62,6 +62,3 @@ export const useVan = create<VanStore>((set) => ({
       return { roster };
     }),
 }));
-
-/** Convenience for non-reactive reads inside useFrame. */
-export const agentState = (id: string): VanAgentState => useVan.getState().agents[id];

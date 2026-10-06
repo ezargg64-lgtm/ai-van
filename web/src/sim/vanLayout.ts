@@ -126,9 +126,6 @@ export const ZONES: Record<ZoneId, ZoneDef> = {
   },
 };
 
-/** Doorway / step area on the open side — pure scenery, but agents walk through it. */
-export const FLOOR_WALK_Y = 0;
-
 export type ActivityDef = {
   id: ActivityId;
   /** zones to try, in order */
@@ -299,13 +296,3 @@ export function slotFor(zone: ZoneId, slot: number): Slot {
   return all[slot] ?? all[0];
 }
 
-export function slotCount(zone: ZoneId): number {
-  const def = ZONES[zone];
-  return def ? def.slots.length : 0;
-}
-
-/** Nearest zone an agent can actually use, used for overflow fallbacks. */
-export function fallbackZone(preferred: ZoneId): ZoneId {
-  const order: ZoneId[] = [preferred, 'aisle', 'floor', 'dinette', 'galley', 'sofa', 'driver-seat', 'bunk'];
-  return order[0];
-}
