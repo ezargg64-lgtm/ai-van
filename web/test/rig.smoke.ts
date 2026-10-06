@@ -252,6 +252,16 @@ console.log('\nheadroom under the over-cab bunk');
   const box = bounds(body, 0);
   ok(box.min.y > BUNK_SLAB.mattressTop - 0.12, 'the sleeper rests on the mattress', `bottom ${box.min.y.toFixed(2)}`);
   ok(box.max.y < VAN.ceilingY - 0.05, 'the sleeper stays below the wall line', `top ${box.max.y.toFixed(2)}`);
+  ok(
+    box.min.x > BUNK_SLAB.x[0] - 0.06 && box.max.x < BUNK_SLAB.x[1] + 0.06,
+    'the sleeper lies within the bunk footprint (x)',
+    `${box.min.x.toFixed(2)}..${box.max.x.toFixed(2)} vs ${BUNK_SLAB.x.join('..')}`,
+  );
+  ok(
+    box.min.z > BUNK_SLAB.z[0] - 0.06 && box.max.z < BUNK_SLAB.z[1] + 0.06,
+    'the sleeper lies within the bunk footprint (z)',
+    `${box.min.z.toFixed(2)}..${box.max.z.toFixed(2)} vs ${BUNK_SLAB.z.join('..')}`,
+  );
 }
 
 console.log('\ncamera framings stay inside the orbit clamp (no snap when the user grabs it)');

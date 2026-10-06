@@ -69,6 +69,12 @@ server/
   lands exactly on the floor for standing *and* for a 44cm cushion.
 - **The only raised seat** is the bunk: agents walk to the ladder, climb, then slide in; and
   reverse it on the way out. Nothing ever floats sideways.
+- **The over-cab bunk sets the cab's height budget.** Its underside is 1.34 and its
+  camera-side edge stops at z = 0.50, so a seated head (1.32) clears it and the cab stays
+  visible from the default framing; the swivel seat lives out at z = 0.72 for the same
+  reason. `BUNK_SLAB` is the shared volume, and the rig suite asserts that no slot pokes into
+  it, that the sleeper rests on the mattress inside the footprint, and that the sleeper stays
+  below the wall line.
 
 ## Tests
 

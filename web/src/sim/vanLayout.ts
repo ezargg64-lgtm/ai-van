@@ -34,7 +34,7 @@ export const VAN = {
  */
 export const BUNK_SLAB = {
   x: [1.44, 2.44] as [number, number],
-  z: [-1.06, 0.42] as [number, number],
+  z: [-1.11, 0.5] as [number, number],
   bottom: 1.34,
   mattressTop: 1.52,
 };
@@ -97,7 +97,7 @@ export const ZONES: Record<ZoneId, ZoneDef> = {
     id: 'bunk',
     label: 'Bunk (over cab)',
     slots: [
-      { zone: 'bunk', pos: [1.93, 1.71, -0.3], yaw: -Math.PI / 2, pose: 'lie-side', note: 'head to the open side' },
+      { zone: 'bunk', pos: [1.93, 1.71, -0.32], yaw: -Math.PI / 2, pose: 'lie-side', note: 'head to the open side' },
     ],
   },
   galley: {
