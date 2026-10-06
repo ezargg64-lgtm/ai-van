@@ -279,7 +279,7 @@ for (const [zone, def] of Object.entries(ZONES)) {
       `${zone} slot ${all.indexOf(s)} sits inside the shell`,
       `${s.pos}`,
     );
-    ok(s.pos[1] >= 0.25 && s.pos[1] <= 1.6, `${zone} slot ${all.indexOf(s)} hip height is plausible`, `${s.pos[1]}`);
+    ok(s.pos[1] >= 0.25 && s.pos[1] <= 1.8, `${zone} slot ${all.indexOf(s)} hip height is plausible`, `${s.pos[1]}`);
   }
 }
 

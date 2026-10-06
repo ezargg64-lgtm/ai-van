@@ -70,7 +70,7 @@ export function Lighting() {
       {/* pendant over the dinette */}
       <pointLight ref={lamp} position={[0.28, 1.74, -0.2]} intensity={2} distance={7} decay={1.6} color="#ffd9a0" />
       {/* dash / GPS glow */}
-      <pointLight ref={cab} position={[1.98, 1.02, -0.5]} intensity={1} distance={4.5} decay={1.8} color="#7fe6ff" />
+      <pointLight ref={cab} position={[2.0, 1.05, 0.6]} intensity={1} distance={4.5} decay={1.8} color="#7fe6ff" />
     </group>
   );
 }

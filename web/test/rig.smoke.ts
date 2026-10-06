@@ -12,7 +12,7 @@
 
 import * as THREE from 'three';
 import { BODY, baseAngles, poseTargets } from '../src/scene/avatarRig';
-import { STAND_HIP_Y, STAND_HEIGHT, VAN, ZONES, slotFor } from '../src/sim/vanLayout';
+import { BUNK_SLAB, STAND_HIP_Y, STAND_HEIGHT, VAN, ZONES, slotFor } from '../src/sim/vanLayout';
 import { FRAMINGS, ORBIT_CLAMP, framingStats, insideClamp } from '../src/scene/cameraFraming';
 import type { Pose, ZoneId } from '../src/sim/types';
 
@@ -101,7 +101,7 @@ function worldOf(obj: THREE.Object3D) {
   return obj.getWorldPosition(new THREE.Vector3());
 }
 
-function bounds(body: ReturnType<typeof buildBody>) {
+function bounds(body: ReturnType<typeof buildBody>, pad = BODY.headRadius * 0.7) {
   const box = new THREE.Box3();
   const points = [
     body.headTop,
@@ -116,7 +116,7 @@ function bounds(body: ReturnType<typeof buildBody>) {
     body.torso,
   ];
   for (const p of points) box.expandByPoint(worldOf(p));
-  box.expandByScalar(BODY.headRadius * 0.7);
+  if (pad) box.expandByScalar(pad);
   return box;
 }
 
@@ -219,6 +219,39 @@ console.log('\nseated agents reach the table');
   ok(knee.y > 0.3 && knee.y < 0.6, 'knees are where knees go', `knee y=${knee.y.toFixed(2)}`);
   const headTop = worldOf(body.headTop);
   ok(headTop.y < VAN.ceilingY, 'sitting tall still clears the roof beam', `top ${headTop.y.toFixed(2)}`);
+}
+
+console.log('\nheadroom under the over-cab bunk');
+{
+  // the solid slab itself: the space *below* it is legitimately usable (dash,
+  // cab seats), but nothing may poke into the platform
+  const slab = new THREE.Box3(
+    new THREE.Vector3(BUNK_SLAB.x[0], BUNK_SLAB.bottom, BUNK_SLAB.z[0]),
+    new THREE.Vector3(BUNK_SLAB.x[1], BUNK_SLAB.mattressTop + 0.14, BUNK_SLAB.z[1]),
+  );
+  for (const [zoneId, def] of Object.entries(ZONES)) {
+    const all = [...def.slots, ...(def.overflow ?? [])];
+    all.forEach((slot, index) => {
+      if (zoneId === 'bunk') return; // the sleeper is on top of the slab, not under it
+      const s = slotFor(zoneId as ZoneId, index);
+      const body = buildBody();
+      body.root.position.set(s.pos[0], s.pos[1] - STAND_HIP_Y, s.pos[2]);
+      body.root.rotation.y = s.yaw;
+      applyPose(body, s.pose);
+      const box = bounds(body, 0);
+      ok(!box.intersectsBox(slab), `${zoneId}[${index}] does not poke into the bunk platform`,
+        `${JSON.stringify(box.min.toArray().map((n) => +n.toFixed(2)))}..${JSON.stringify(box.max.toArray().map((n) => +n.toFixed(2)))}`);
+    });
+  }
+  // and the sleeper has to be ON the mattress, under the wall line
+  const slot = slotFor('bunk', 0);
+  const body = buildBody();
+  body.root.position.set(slot.pos[0], slot.pos[1] - STAND_HIP_Y, slot.pos[2]);
+  body.root.rotation.y = slot.yaw;
+  applyPose(body, 'lie-side');
+  const box = bounds(body, 0);
+  ok(box.min.y > BUNK_SLAB.mattressTop - 0.12, 'the sleeper rests on the mattress', `bottom ${box.min.y.toFixed(2)}`);
+  ok(box.max.y < VAN.ceilingY - 0.05, 'the sleeper stays below the wall line', `top ${box.max.y.toFixed(2)}`);
 }
 
 console.log('\ncamera framings stay inside the orbit clamp (no snap when the user grabs it)');

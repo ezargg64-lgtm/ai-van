@@ -7,7 +7,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { VAN, ZONES } from '../sim/vanLayout';
+import { BUNK_SLAB, VAN, ZONES } from '../sim/vanLayout';
 import { world } from '../sim/timeOfDay';
 import { floorTexture, gpsTexture, rugTexture } from './textures';
 
@@ -273,8 +273,8 @@ function Cab() {
       {/* dashboard */}
       <B p={[2.16, 0.86, 0]} s={[0.62, 0.3, 2.0]} c={COLORS.dark} />
       <B p={[2.16, 0.99, 0]} s={[0.66, 0.06, 2.04]} c="#3a3f47" />
-      {/* GPS screen */}
-      <mesh position={[2.02, 1.06, -0.75]} rotation={[0, -0.5, -0.25]}>
+      {/* GPS screen (on the side of the dash the camera can actually see) */}
+      <mesh position={[2.04, 1.06, 0.74]} rotation={[0, 0.5, -0.25]}>
         <planeGeometry args={[0.34, 0.26]} />
         <meshBasicMaterial map={gps} toneMapped={false} />
       </mesh>
@@ -298,7 +298,7 @@ function Cab() {
         </mesh>
       </group>
       {/* steering wheel */}
-      <group position={[2.05, 1.0, -0.45]} rotation={[0, 0, 1.15]}>
+      <group position={[2.05, 1.0, 0.55]} rotation={[0, 0, 1.15]}>
         <mesh castShadow>
           <torusGeometry args={[0.16, 0.026, 8, 20]} />
           <meshStandardMaterial color="#2a2d33" roughness={0.6} />
@@ -312,8 +312,8 @@ function Cab() {
           <meshStandardMaterial color="#2a2d33" />
         </mesh>
       </group>
-      {/* driver swivel seat (facing the living area) */}
-      <group position={[1.8, 0, -0.45]} rotation={[0, -1.11, 0]}>
+      {/* swivel seat: parked by the door, facing back into the living area */}
+      <group position={[1.72, 0, 0.72]} rotation={[0, -2.2, 0]}>
         <B p={[0, 0.24, 0]} s={[0.46, 0.12, 0.44]} c={COLORS.dark} />
         <B p={[0, 0.34, 0]} s={[0.06, 0.22, 0.06]} c={COLORS.metal} />
         <B p={[0, 0.44, 0]} s={[0.5, 0.1, 0.46]} c="#4a5361" />
@@ -321,8 +321,8 @@ function Cab() {
           <B p={[0, 0.24, 0]} s={[0.48, 0.48, 0.1]} c="#3f4855" />
         </group>
       </group>
-      {/* passenger seat */}
-      <group position={[1.86, 0, 0.5]}>
+      {/* passenger seat, tucked under the bunk */}
+      <group position={[1.86, 0, -0.5]}>
         <B p={[0, 0.3, 0]} s={[0.48, 0.34, 0.46]} c="#3f4855" />
         <group position={[0, 0.47, 0.22]} rotation={[-0.16, 0, 0]}>
           <B p={[0, 0.24, 0]} s={[0.46, 0.48, 0.1]} c="#3f4855" />
@@ -330,7 +330,7 @@ function Cab() {
         <B p={[0, 0.07, 0]} s={[0.4, 0.14, 0.4]} c={COLORS.dark} />
       </group>
       {/* dash plant + a mug in the cupholder */}
-      <group position={[2.12, 1.02, 0.72]}>
+      <group position={[2.12, 1.02, -0.15]}>
         <B p={[0, 0.06, 0]} s={[0.14, 0.12, 0.14]} c={COLORS.terracotta} />
         <mesh position={[0, 0.2, 0]} castShadow>
           <icosahedronGeometry args={[0.11, 0]} />
@@ -438,31 +438,46 @@ function Sofa() {
 }
 
 function Bunk() {
+  const x0 = BUNK_SLAB.x[0];
+  const x1 = BUNK_SLAB.x[1];
+  const z0 = BUNK_SLAB.z[0];
+  const z1 = BUNK_SLAB.z[1];
+  const cx = (x0 + x1) / 2;
+  const cz = (z0 + z1) / 2;
+  const width = x1 - x0;
+  const depth = z1 - z0;
+  const platformMid = BUNK_SLAB.bottom + 0.04;
+  const mattressMid = BUNK_SLAB.bottom + 0.08 + 0.05;
+
   return (
     <group>
-      {/* platform + mattress */}
-      <B p={[1.93, 1.1, -0.3]} s={[1.02, 0.12, 1.52]} c={COLORS.woodDark} />
-      <mesh position={[1.93, 1.21, -0.3]} castShadow receiveShadow>
-        <boxGeometry args={[0.98, 0.14, 1.48]} />
+      {/* platform + mattress (underside 1.34: a seated head at 1.32 clears it) */}
+      <B p={[cx, platformMid, cz]} s={[width, 0.08, depth]} c={COLORS.woodDark} />
+      <mesh position={[cx, mattressMid, cz]} castShadow receiveShadow>
+        <boxGeometry args={[width - 0.06, 0.1, depth - 0.04]} />
         <meshStandardMaterial color={COLORS.mattress} roughness={1} />
       </mesh>
-      {/* pillow + blanket */}
-      <B p={[1.93, 1.34, 0.24]} s={[0.62, 0.16, 0.34]} c="#ffffff" />
-      <B p={[1.93, 1.4, -0.62]} s={[0.94, 0.07, 0.62]} c={COLORS.blanket} />
-      {/* support posts */}
-      <B p={[1.5, 0.6, -1.02]} s={[0.08, 1.2, 0.08]} c={COLORS.metal} />
-      <B p={[2.38, 0.6, -1.02]} s={[0.08, 1.2, 0.08]} c={COLORS.metal} />
-      {/* ladder at the open edge */}
-      <group position={[1.92, 0.72, 0.58]}>
-        {[-0.3, 0.3].map((dx) => (
-          <B key={dx} p={[dx, 0, 0]} s={[0.06, 1.44, 0.06]} c={COLORS.wood} />
+      {/* pillow at the head end (+Z) + a folded blanket over the legs */}
+      <B p={[cx, BUNK_SLAB.mattressTop + 0.07, z1 - 0.22]} s={[0.6, 0.14, 0.32]} c="#ffffff" />
+      <B p={[cx, BUNK_SLAB.mattressTop + 0.04, z0 + 0.42]} s={[width - 0.14, 0.07, 0.66]} c={COLORS.blanket} />
+      {/* support posts on the wall side */}
+      <B p={[x0 + 0.06, BUNK_SLAB.bottom / 2, z0 + 0.05]} s={[0.08, BUNK_SLAB.bottom, 0.08]} c={COLORS.metal} />
+      <B p={[x1 - 0.06, BUNK_SLAB.bottom / 2, z0 + 0.05]} s={[0.08, BUNK_SLAB.bottom, 0.08]} c={COLORS.metal} />
+      {/* a short guard rail near the feet */}
+      <B p={[x0 + 0.02, BUNK_SLAB.mattressTop + 0.2, z0 + 0.5]} s={[0.05, 0.3, 0.7]} c={COLORS.wood} />
+
+      {/* ladder on the living-area edge: the climb anchor in vanLayout points here */}
+      <group position={[x0 - 0.02, BUNK_SLAB.bottom / 2, 0]}>
+        {[-0.3, 0.3].map((dz) => (
+          <B key={dz} p={[0, 0, dz]} s={[0.06, BUNK_SLAB.bottom, 0.06]} c={COLORS.wood} />
         ))}
-        {[-0.58, -0.28, 0.02, 0.32, 0.62].map((dy) => (
-          <B key={dy} p={[0, dy, 0]} s={[0.62, 0.05, 0.05]} c={COLORS.wood} />
+        {[-1.4, -1.05, -0.7, -0.35, 0, 0.35, 0.7, 1.05, 1.4].map((dy) => (
+          <B key={dy} p={[0, dy * 0.45, 0]} s={[0.05, 0.05, 0.66]} c={COLORS.wood} />
         ))}
       </group>
-      {/* reading light (emissive only) */}
-      <mesh position={[1.98, 1.62, -1.06]}>
+
+      {/* clip-on reading light at the head end (emissive only) */}
+      <mesh position={[x1 - 0.14, BUNK_SLAB.mattressTop + 0.2, z1 - 0.12]}>
         <sphereGeometry args={[0.05, 10, 8]} />
         <meshStandardMaterial color="#fff3d0" emissive="#ffd88a" emissiveIntensity={2} />
       </mesh>

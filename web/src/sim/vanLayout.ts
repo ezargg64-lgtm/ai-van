@@ -25,6 +25,20 @@ export const VAN = {
   openSideZ: 1,
 };
 
+/**
+ * The over-cab bunk, as a volume. Shared by the scene, the sim and the rig test.
+ * The underside is high enough for a seated head (1.32) to clear it, and the
+ * mattress top is at 1.52, so a lying body tops out at ~1.93 — under the 2.06
+ * wall height. The camera-side edge is at z = 0.42: anything more towards +Z stays
+ * visible from the default framing, which is why the swivel seat lives out there.
+ */
+export const BUNK_SLAB = {
+  x: [1.44, 2.44] as [number, number],
+  z: [-1.06, 0.42] as [number, number],
+  bottom: 1.34,
+  mattressTop: 1.52,
+};
+
 export type Slot = {
   zone: ZoneId;
   /** hip anchor [x, y, z] */
@@ -49,7 +63,13 @@ export const ZONES: Record<ZoneId, ZoneDef> = {
     id: 'driver-seat',
     label: 'Swivel seat',
     slots: [
-      { zone: 'driver-seat', pos: [1.95, 0.5, -0.45], yaw: -1.11, pose: 'sit-upright', note: 'swivelled to face the living area' },
+      {
+        zone: 'driver-seat',
+        pos: [1.72, 0.5, 0.72],
+        yaw: -2.2,
+        pose: 'sit-upright',
+        note: 'swivel seat by the door, out from under the bunk so you can always see who is in it',
+      },
     ],
   },
   dinette: {
@@ -77,7 +97,7 @@ export const ZONES: Record<ZoneId, ZoneDef> = {
     id: 'bunk',
     label: 'Bunk (over cab)',
     slots: [
-      { zone: 'bunk', pos: [1.93, 1.47, -0.3], yaw: -Math.PI / 2, pose: 'lie-side', note: 'head to the open side' },
+      { zone: 'bunk', pos: [1.93, 1.71, -0.3], yaw: -Math.PI / 2, pose: 'lie-side', note: 'head to the open side' },
     ],
   },
   galley: {
@@ -243,7 +263,7 @@ export const CHAT_PAIRS: Array<string[]> = [
 export const WALK_SPEED = 1.15;
 export const CLIMB_SPEED = 0.55;
 /** Standing spot at the foot of the bunk ladder: elevated slots are climbed from here. */
-export const BUNK_CLIMB_ANCHOR: [number, number, number] = [1.92, STAND_HIP_Y, 0.78];
+export const BUNK_CLIMB_ANCHOR: [number, number, number] = [1.18, STAND_HIP_Y, 0.0];
 
 /** Roster defaults (the backend can override names/roles/colors at runtime). */
 export const ROSTER: Array<{
