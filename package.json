@@ -1,0 +1,21 @@
+{
+  "name": "dev-van-life",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DEV VAN LIFE \u2014 your AI agents as dev friends living in a cozy camper van, always driving through a day/night world.",
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"cd server && npm run dev\" \"cd web && npm run dev\"",
+    "build": "cd web && npm run build",
+    "start": "node server/index.js",
+    "install:all": "npm install --no-audit --no-fund && cd server && npm install --no-audit --no-fund && cd ../web && npm install --no-audit --no-fund",
+    "test": "cd web && npm test",
+    "typecheck": "cd web && npm run typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
