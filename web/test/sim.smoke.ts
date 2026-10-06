@@ -34,7 +34,7 @@ globalThis.clearTimeout = (handle: any) => {
   if (idx >= 0) timers.splice(idx, 1);
 };
 
-function advance(ms: number, step = 250) {
+function advance(ms: number, step = 250, onSample?: () => void) {
   const target = vnow + ms;
   while (vnow < target) {
     vnow = Math.min(vnow + step, target);
@@ -49,6 +49,7 @@ function advance(ms: number, step = 250) {
     world.t = (world.t + step / 1000 / (world.cycleMinutes * 60)) % 1;
     sampleLights(world.t, world.lights);
     livingSim.update(vnow);
+    onSample?.();
   }
 }
 
@@ -203,7 +204,7 @@ console.log('\nphase 5 · the task ends and the van goes back to life');
 taskStaging.finishTask('We are good to go on the dark mode toggle. QA wants the error copy fixed first.');
 advance(1500, 250);
 ok(Boolean(snapshot().michael.bubble), 'Michael gives the wrap-up');
-advance(20_000, 250);
+advance(24_000, 250);
 ok(useVan.getState().mode === 'idle', 'mode returns to idle after the wrap-up');
 {
   const agents = Object.values(snapshot());
@@ -216,15 +217,41 @@ ok(useVan.getState().mode === 'idle', 'mode returns to idle after the wrap-up');
   const busy = agents.filter((a) => a.activity !== null).length;
   ok(busy >= 4, 'everyone picked up where they left off', `${busy}/5 busy · ${JSON.stringify(livingSim.debugPlans())}`);
 }
-advance(90_000, 250);
+// Watch the whole 90s, not one instant: what matters is that the van stays
+// inhabited and varied *over time*, and that nobody is left standing around.
+const busyTrace: number[] = [];
+const idleRun: Record<string, number> = {};
+const idleWorst: Record<string, number> = {};
+const seen = new Set<string>();
+advance(90_000, 250, () => {
+  const agents = snapshot();
+  let busy = 0;
+  for (const [id, a] of Object.entries(agents)) {
+    if (a.activity) {
+      busy++;
+      seen.add(a.activity);
+      idleRun[id] = 0;
+    } else {
+      idleRun[id] = (idleRun[id] ?? 0) + 250;
+      idleWorst[id] = Math.max(idleWorst[id] ?? 0, idleRun[id]);
+    }
+  }
+  busyTrace.push(busy);
+});
 checkInvariants('post-task');
 checkNoSeatCollisions('post-task');
 {
   const agents = Object.values(snapshot());
-  const acts = new Set(agents.map((a) => a.activity).filter(Boolean));
   const busy = agents.filter((a) => a.activity !== null).length;
-  ok(busy >= 2, 'the van keeps living after a task', `${busy}/5 busy · ${JSON.stringify(livingSim.debugPlans())}`);
-  ok(acts.size >= 2, 'life is varied, not a single loop', [...acts].join(', '));
+  const minBusy = Math.min(...busyTrace);
+  const maxBusy = Math.max(...busyTrace);
+  const worstIdle = Math.max(...Object.values(idleWorst));
+  const worstId = Object.entries(idleWorst).find(([, ms]) => ms === worstIdle)?.[0] ?? '?';
+  ok(minBusy >= 2, 'the van never empties out', `min ${minBusy}/5 busy · ${JSON.stringify(livingSim.debugPlans())}`);
+  ok(maxBusy >= 4, 'the van fills back up', `max ${maxBusy}/5 busy`);
+  ok(worstIdle <= 50_000, `nobody is left standing around (worst: ${worstId})`, `${(worstIdle / 1000).toFixed(1)}s`);
+  ok(seen.size >= 3, 'life is varied, not a single loop', [...seen].join(', '));
+  ok(busy >= 2, 'the van keeps living after a task', `${busy}/5 busy`);
   const settled = agents.filter((a) => a.zone === 'dinette' && a.activity === null).length;
   ok(settled <= 2, 'nobody is left permanently parked at the table', `${settled} parked`);
 }

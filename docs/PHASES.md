@@ -48,7 +48,9 @@ adjacent zones.
 
 **Verified:** `test:sim` plays ~20 virtual minutes per run: no two agents ever share a seat,
 at least three different activities and zones occur, somebody codes during the day segment, and
-slots stay legal. `test:rig` proves the feet land on the floor for every seated pose (and are
+slots stay legal, and a 90-second trace after the task proves the van never empties out (at
+least two busy at every sample, back to 4/5, nobody idle for more than 50s, three or more
+different activities seen). `test:rig` proves the feet land on the floor for every seated pose (and are
 not 6cm under it), the sleeper rests on the mattress under the wall line, and no slot pokes
 into the bunk slab.
 

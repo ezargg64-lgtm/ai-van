@@ -219,11 +219,26 @@ class LivingSim {
     }
   }
 
+  /** How many agents are sitting around with nothing to do (staged ones don't count). */
+  private idleCount(exceptId?: string): number {
+    let n = 0;
+    for (const [id, plan] of this.plans) {
+      if (id === exceptId) continue;
+      if (occupancy.isStaged(id)) continue;
+      if (this.chat && (this.chat.a === id || this.chat.b === id)) continue;
+      if (plan.activity === null) n++;
+    }
+    return n;
+  }
+
   private endActivity(id: string, now: number, rollOn = false) {
     const plan = this.plans.get(id);
     if (!plan) return;
     plan.activity = null;
-    plan.nextAt = rollOn ? now + rnd(400, 2600) : now + rnd(BREAK_MIN, BREAK_MAX);
+    // The van should always look inhabited: a real break is only allowed when
+    // everybody else is busy. Otherwise they roll straight into the next thing.
+    const canAffordABreak = rollOn === false && this.idleCount(id) === 0;
+    plan.nextAt = canAffordABreak ? now + rnd(BREAK_MIN, BREAK_MAX) : now + rnd(400, 2600);
     writeAgent(id, { activity: null, propId: null, zzz: false, lookAt: null });
     clearBubble(id);
   }
@@ -328,10 +343,15 @@ class LivingSim {
         const entry = ROSTER.find((r) => r.id === id);
         const bias = entry?.bias ?? [];
         const weights = this.weightsFor(id);
-        // gentle pull back toward this agent's own habits
+        // gentle pull back toward this agent's own habits, and away from whatever
+        // everybody else is already doing (five coders is a bug, not a vibe)
+        const running = new Set<ActivityId>();
+        for (const [otherId, other] of this.plans) {
+          if (otherId !== id && other.activity) running.add(other.activity);
+        }
         const weighted: Array<[ActivityId, number]> = weights.map(([act, w]) => [
           act,
-          w * (bias.includes(act) ? 1.25 : 1),
+          w * (bias.includes(act) ? 1.25 : 1) * (running.has(act) ? 0.35 : 1),
         ]);
         const chosen = pickWeighted(weighted) ?? 'reading';
         if (chosen === plan.activity) {
