@@ -179,7 +179,7 @@ for (const [label, t] of [
   ['night panorama', night],
 ] as const) {
   if (!t) continue;
-  ok(t.image.width === 2048 && t.image.height === 512, `${label} is 2048x512`, `${t.image.width}x${t.image.height}`);
+  ok(t.image.width === 4096 && t.image.height === 512, `${label} is 4096x512`, `${t.image.width}x${t.image.height}`);
   ok(t.wrapS === 1000, `${label} wraps horizontally (RepeatWrapping)`, String(t.wrapS));
   ok(Boolean(t.colorSpace), `${label} has a colour space set`);
 }

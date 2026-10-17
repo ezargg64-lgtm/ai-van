@@ -99,27 +99,64 @@ on the mattress, and no two huddled agents overlapping.
 **One container, one volume. Not serverless** — Vercel's ephemeral filesystem resets
 `store.json` on every request (that was the blank Agents tab).
 
+### Pterodactyl (customer panel, no egg changes)
+
+The repo is laid out for the stock generic-node egg: no build step on the panel, no
+non-standard startup command, no extra ports.
+
+| Panel field (Startup tab) | Value |
+| --- | --- |
+| GIT ADDRESS | `https://github.com/YOU/dev-van-life.git` |
+| INSTALL BRANCH | `main` |
+| GIT USERNAME / ACCESS TOKEN | empty for a public repo |
+| COMMAND RUN | `node server/index.js` |
+| CUSTOM_ENVIRONMENT_VARIABLES | `GEMINI_API_KEY=…;DAY_CYCLE_MINUTES=12;MEETING_CALL_CAP=20` |
+
+**Do not touch `SERVER_PORT`** — the panel injects it from your allocation and the server
+reads it (`SERVER_PORT`, then `PORT`, then `8080`). Nothing is hardcoded.
+
+How the pieces line up:
+
+- `web/dist/` is **committed** (`npm run build` locally, commit the result). The egg clones
+  and installs, it never builds, so the pre-built SPA has to be in git.
+- Root `package.json` has `postinstall` → `npm --prefix server install && npm --prefix web install`,
+  which is what the egg's automatic `npm install` runs. `start` is `node server/index.js`.
+- `server/store.js` writes `/home/container/data/store.json` whenever `/home/container`
+  exists (or `DATA_DIR` if you set one). Nothing is written outside `/home/container`.
+- The server serves `web/dist` and falls back to `index.html` for deep links, without
+  swallowing `/api/*` or `/socket.io/*`.
+
+Steps: push → Startup tab values above → **Reinstall** (or Restart if git was already set)
+→ wait for `listening on <port>` in the console → open `http://<node>:<port>`.
+
+Updating: push to GitHub, then Restart (the egg `git pull`s on boot when `AUTO_UPDATE=1`).
+
+### Docker / Railway / Render / Fly / a VPS
+
 ```bash
 docker build -t dev-van .
 docker run -d -p 8080:8080 -v $(pwd)/data:/app/data -e GEMINI_API_KEY=... dev-van
 ```
 
-Railway (easiest): deploy the repo, add a **Volume** at `/app/data`, set `GEMINI_API_KEY`.
-Render: same, but it calls it a **Disk**. Fly.io: `fly launch` picks up the Dockerfile, then
-`fly volumes create data`. Any VPS: the `docker run` above, behind Caddy or nginx for TLS.
+Railway: deploy the repo, add a **Volume** at `/app/data`, set `GEMINI_API_KEY`.
+Render: same, but it calls it a **Disk**. Fly.io: `fly launch` picks up the Dockerfile,
+then `fly volumes create data`. Any VPS: the `docker run` above, behind Caddy or nginx.
 
 | Env var | Default | Purpose |
 | --- | --- | --- |
 | `GEMINI_API_KEY` | — | default key; without one the app runs in demo mode |
 | `GEMINI_MODEL` | `gemini-2.5-flash` | model for every call (overridable in Settings) |
-| `PORT` | `8080` | listen port |
+| `SERVER_PORT` | — | the port to listen on; Pterodactyl injects it |
+| `PORT` | `8080` | fallback for Railway/Render/Docker |
 | `DAY_CYCLE_MINUTES` | `12` | one full day/night cycle |
 | `MEETING_CALL_CAP` | `20` | Gemini calls per "Discuss with Team" session |
-| `DATA_DIR` | `./data` (`/app/data` in Docker) | where `store.json` lives |
+| `DATA_DIR` | `/home/container/data` on Pterodactyl, else `./data` | where `store.json` lives |
 
 ### Post-deploy checklist
 
+- [ ] Console shows `listening on <port>` (Pterodactyl prints it on the panel's port)
 - [ ] `GET /api/agents` returns 5 agents
+- [ ] `GET /api/health` says `demoMode: true` until a key is set
 - [ ] Settings → Agents: edit a persona, save, hard-refresh → still there
 - [ ] Settings → Global: paste a key, save → top bar stops saying `demo`
 - [ ] Submit a task → huddle → bubbles → wrap-up → agents disperse

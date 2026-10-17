@@ -5,7 +5,7 @@ See [PHASES.md](PHASES.md) for the per-phase build log.
 ## What phase 5 did not get to verify
 
 **`docker build` has not been executed in this environment** (no Docker daemon available in
-the sandbox). The Dockerfile is straightforward and mirrors the documented Railway/Render
+the sandbox). The Dockerfile is straightforward and mirrors the documented Pterodactyl/Railway
 flow, but treat the first build as unverified. Everything on the runtime side *is* verified:
 the same Express process that the image starts (`node server/index.js`, `NODE_ENV=production`)
 was run against the built `web/dist` and checked for:

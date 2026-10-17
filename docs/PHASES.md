@@ -69,11 +69,25 @@ one speaker at a time, result bubbles, wrap-up, everyone picks life back up) and
 
 ## Phase 5 — Deploy prep ✅
 
-`Dockerfile` (two stages, `npm ci`, static `web/dist`, `DATA_DIR=/app/data`), Express static
-serving with an SPA fallback that does not swallow `/api` or `/socket.io`, root scripts,
-`.env.example`, `.dockerignore`, and the hosting guide in the README.
+Two targets, one process:
 
-**Verified:** the production path was exercised directly — `GET /` returns the built
-`index.html`, hashed assets return 200 with the right content type, a deep link falls back to
-`index.html`, and `/api/*` still answers JSON. **`docker build` itself has not been run**: no
-Docker daemon in this environment (see ROADMAP).
+**Pterodactyl (stock generic-node egg, no egg changes).** Root `package.json` has the
+`postinstall` hook the egg's automatic `npm install` triggers, and `start` is
+`node server/index.js`. `web/dist` is committed — the panel never builds. The port comes from
+`SERVER_PORT` (injected by the panel), falling back to `PORT`, then `8080`; nothing is
+hardcoded. `store.js` writes `/home/container/data/store.json` whenever `/home/container`
+exists, so nothing is written outside the panel's writable root.
+
+**Docker / Railway / Render / Fly / VPS.** `Dockerfile` (two stages on `node:24-slim`,
+`npm ci`, static `web/dist`, `DATA_DIR=/app/data`, `PORT=8080` left overridable).
+
+Both share Express static serving with an SPA fallback that does not swallow `/api` or
+`/socket.io`, `.env.example`, `.dockerignore`, and the hosting guide in the README.
+
+**Verified:** the production path was exercised from a **fresh clone of the committed tree**
+exactly as the panel runs it — `npm install` at the root (which fires `postinstall` and
+installs both sub-projects), then `node server/index.js` with `SERVER_PORT` set to a
+non-default port. The server bound that port, served the committed `web/dist`, fell back to
+`index.html` for a deep link, answered `/api/*`, and wrote `store.json` to the injected
+`DATA_DIR`. **`docker build` itself has not been run**: no Docker daemon in this environment
+(see ROADMAP).

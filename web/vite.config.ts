@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 // Dev: the preview proxies /api and /socket.io to the Express server, so the
 // browser only ever talks to its own origin (required for the hosted preview:
 // the user's browser can never reach the sandbox's localhost directly).
-const API_TARGET = process.env.VITE_API_TARGET || 'http://127.0.0.1:8080';
+const API_PORT = process.env.SERVER_PORT || process.env.PORT || '8080';
+const API_TARGET = process.env.VITE_API_TARGET || `http://127.0.0.1:${API_PORT}`;
 
 export default defineConfig({
   plugins: [react()],

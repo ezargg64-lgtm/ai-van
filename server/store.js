@@ -10,9 +10,18 @@ import { DEFAULT_AGENTS, AGENT_IDS } from './agents.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 
-export const DATA_DIR = path.resolve(
-  process.env.DATA_DIR || path.join(ROOT, 'data'),
-);
+// Where store.json lives.
+//   Pterodactyl: the writable root is /home/container — nothing may be written
+//   anywhere else inside the container, so the file goes in /home/container/data.
+//   Docker/Railway/Render: DATA_DIR is set explicitly (the image uses /app/data).
+//   Local dev: ./data next to the repo, so a fresh clone just works.
+function defaultDataDir() {
+  if (process.env.DATA_DIR) return process.env.DATA_DIR;
+  if (fs.existsSync('/home/container')) return '/home/container/data';
+  return path.join(ROOT, 'data');
+}
+
+export const DATA_DIR = path.resolve(defaultDataDir());
 const STORE_FILE = path.join(DATA_DIR, 'store.json');
 
 const TASK_HISTORY_LIMIT = 30;

@@ -16,7 +16,9 @@ import { createMeeting, sendMessage, endMeeting, getMeeting } from './meetings.j
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const webDist = path.join(__dirname, '..', 'web', 'dist');
-const PORT = Number(process.env.PORT || 8080);
+// Pterodactyl injects SERVER_PORT from the allocation — never hardcode a port.
+// Railway/Render/Fly/Docker set PORT; 8080 is the local default.
+const PORT = Number(process.env.SERVER_PORT || process.env.PORT || 8080);
 
 load();
 
@@ -183,7 +185,7 @@ process.on('SIGTERM', () => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚐 DEV VAN LIFE listening on 0.0.0.0:${PORT}`);
+  console.log(`🚐 DEV VAN LIFE listening on ${PORT} (0.0.0.0:${PORT})`);
   console.log(`   data:    ${DATA_DIR}`);
   console.log(`   gemini:  ${hasKey() ? `${modelName()} (key ${keyPreview()})` : 'DEMO MODE — no key set, canned lines'}`);
   console.log(`   static:  ${fs.existsSync(webDist) ? webDist : 'none (dev mode: use Vite)'}`);

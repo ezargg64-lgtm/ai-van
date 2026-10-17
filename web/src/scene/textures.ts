@@ -109,7 +109,7 @@ export function cushionTexture() {
 
 // ── Panorama ────────────────────────────────────────────────────────────────
 
-const PANO_W = 2048;
+const PANO_W = 4096; // spec: 4096x512, drawn once at mount
 const PANO_H = 512;
 
 /** draws at x and x±W so shapes wrap seamlessly */

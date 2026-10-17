@@ -1,6 +1,9 @@
 node_modules/
-dist/
 data/
+
+# Build output is ignored, EXCEPT web/dist — the Pterodactyl egg deploys the repo
+# as-is and never runs a build, so the pre-built SPA is committed on purpose.
+/dist/
 *.log
 .env
 .DS_Store

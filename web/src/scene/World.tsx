@@ -11,7 +11,7 @@ import { motion, scrollX, updateMotion, SCROLL_SPAN } from './motion';
 import { world } from '../sim/timeOfDay';
 
 export const GROUND_Y = -0.78;
-const PANO_RADIUS = 45;
+const PANO_RADIUS = 30; // spec: curved panorama at 30 m
 const PANO_LOW = GROUND_Y;
 const PANO_HIGH = 14;
 const PANO_HEIGHT = PANO_HIGH - PANO_LOW;
@@ -219,12 +219,12 @@ function Road() {
 }
 
 function Forest() {
-  const trees = useMemo(() => makeItems(44, 101, 8, 30, 2.2, 6.4), []);
+  const trees = useMemo(() => makeItems(44, 101, 8, 25, 2.2, 6.4), []);
   const trunkGeo = useMemo(() => new THREE.CylinderGeometry(0.16, 0.22, 1.6, 5), []);
   const trunkMat = useMemo(() => new THREE.MeshLambertMaterial({ color: '#5a4632', flatShading: true }), []);
   const crownGeo = useMemo(() => new THREE.ConeGeometry(1, 2.6, 6), []);
   const crownMat = useMemo(() => new THREE.MeshLambertMaterial({ color: '#2f6b45', flatShading: true }), []);
-  const hills = useMemo(() => makeItems(14, 555, 46, 110, 12, 30), []);
+  const hills = useMemo(() => makeItems(16, 555, 18, 26, 4, 8.5), []);
   const hillGeo = useMemo(() => new THREE.ConeGeometry(1, 1, 5), []);
   const hillMat = useMemo(() => new THREE.MeshLambertMaterial({ color: '#4d6a5c', flatShading: true }), []);
 
