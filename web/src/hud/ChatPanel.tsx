@@ -179,6 +179,7 @@ export function ChatPanel() {
           <div className="chat-input">
             <input
               value={message}
+              enterKeyHint="send"
               placeholder={meeting.concluded ? 'chat has ended' : 'say something to the team…'}
               disabled={meeting.concluded}
               onChange={(e) => setMessage(e.target.value)}

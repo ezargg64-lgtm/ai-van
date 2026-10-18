@@ -44,7 +44,7 @@ export function TopBar() {
         </div>
         <div className="clock-meta">
           <span className={`seg seg-${clock.segment}`}>{SEGMENT_LABEL[clock.segment]}</span>
-          <span className="dim">{clock.phase} · {cycle}min day</span>
+          <span className="dim lbl-full">{clock.phase} · {cycle}min day</span>
           <button
             className="tiny"
             title="pause / resume the day-night cycle"
@@ -68,14 +68,21 @@ export function TopBar() {
           className={`btn ${panels.chat ? 'active' : ''}`}
           onClick={() => openPanel('chat')}
           disabled={mode === 'task'}
+          aria-label="Discuss with team"
         >
-          💬 Discuss with Team
+          💬 <span className="lbl-full">Discuss with Team</span>
+          <span className="lbl-short">Chat</span>
         </button>
-        <button className={`btn ${panels.task ? 'active' : ''}`} onClick={() => openPanel('task')} disabled={!task}>
-          📋 Task {task?.status === 'working' ? '· running' : ''}
+        <button
+          className={`btn ${panels.task ? 'active' : ''}`}
+          onClick={() => openPanel('task')}
+          disabled={!task}
+          aria-label="Task details"
+        >
+          📋 Task<span className="btn-status">{task?.status === 'working' ? ' · running' : ''}</span>
         </button>
-        <button className="btn" onClick={() => openPanel('settings')}>
-          ⚙️ Settings
+        <button className="btn" onClick={() => openPanel('settings')} aria-label="Settings">
+          ⚙️ <span className="lbl-full">Settings</span>
         </button>
         <span className={`conn ${connected ? 'on' : 'off'}`} title={connected ? 'backend connected' : 'backend offline'} />
         {demoMode && <span className="demo-chip">demo</span>}

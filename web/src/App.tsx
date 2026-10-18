@@ -60,7 +60,12 @@ export default function App() {
       <SettingsPanel />
       <Toasts />
 
-      <div className="hint">drag to orbit · scroll to zoom</div>
+      <div className="hint">
+        drag to orbit ·{' '}
+        {typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+          ? 'pinch to zoom'
+          : 'scroll to zoom'}
+      </div>
     </div>
   );
 }

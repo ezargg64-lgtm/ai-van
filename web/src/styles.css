@@ -24,6 +24,7 @@ body,
 #root {
   margin: 0;
   height: 100%;
+  height: 100dvh;
   background: #0b0f16;
   color: var(--cream);
   font-family: ui-rounded, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
@@ -60,6 +61,7 @@ button {
   font: inherit;
   color: inherit;
   cursor: pointer;
+  touch-action: manipulation; /* no double-tap zoom delay on touch */
 }
 
 button:disabled {
@@ -248,6 +250,11 @@ textarea:focus {
 
 .btn.active {
   outline: 2px solid rgba(255, 200, 107, 0.65);
+}
+
+/* short labels only show once the top bar runs out of room (see phone query) */
+.lbl-short {
+  display: none;
 }
 
 .btn.wide {
@@ -608,6 +615,16 @@ textarea:focus {
   border-top: 1px solid var(--line);
 }
 
+.chat-input input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.chat-input .btn {
+  flex: none;
+}
+
 .field {
   display: block;
   margin-bottom: 10px;
@@ -843,6 +860,8 @@ input[type='number'] {
   pointer-events: none;
 }
 
+/* ── tablets & small laptops: tighter chrome, stacked settings ── */
+
 @media (max-width: 900px) {
   .panel {
     top: 150px;
@@ -853,5 +872,178 @@ input[type='number'] {
   }
   .settings-agents {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── phones: compact top bar, panels slide up as sheets ── */
+
+@media (max-width: 720px) {
+  .topbar {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .brand-van {
+    font-size: 20px;
+  }
+
+  .brand-text {
+    font-size: 12px;
+  }
+
+  .brand-text small {
+    display: none;
+  }
+
+  .clock {
+    max-width: none;
+  }
+
+  .clock-time {
+    font-size: 15px;
+  }
+
+  .clock-track {
+    display: none;
+  }
+
+  .clock-meta .dim {
+    display: none;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    margin-left: 0;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .topbar-actions .btn {
+    flex: 1 1 auto;
+    padding: 8px 6px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .topbar-actions .mode-chip,
+  .topbar-actions .conn {
+    flex: none;
+  }
+
+  .lbl-full,
+  .btn-status,
+  .budget-chip,
+  .demo-chip {
+    display: none;
+  }
+
+  .lbl-short {
+    display: inline;
+  }
+
+  /* panels become bottom sheets floating above the task bar */
+  .panel,
+  .panel.left,
+  .panel.right {
+    top: calc(104px + env(safe-area-inset-top));
+    bottom: calc(120px + env(safe-area-inset-bottom));
+    left: 8px;
+    right: 8px;
+    width: auto;
+    animation: sheet-up 220ms ease-out;
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(18px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .taskbar {
+    left: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    width: calc(100% - 16px);
+  }
+
+  /* suggestion chips scroll sideways instead of stacking up */
+  .suggestions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .suggestions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    flex: none;
+  }
+
+  .toasts {
+    top: calc(104px + env(safe-area-inset-top));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(420px, calc(100% - 16px));
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal {
+    width: 100%;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+
+  /* settings forms stack instead of squeezing side by side */
+  .agent-form .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .row .field.narrow {
+    flex: 1 1 auto;
+  }
+
+  input,
+  textarea {
+    font-size: 16px; /* stops iOS from zooming on focus */
+  }
+}
+
+/* short landscape screens: trim chrome, keep the view */
+
+@media (max-height: 540px) {
+  .suggestions {
+    display: none;
+  }
+
+  .panel {
+    top: 84px;
+    bottom: 96px;
   }
 }

@@ -49,6 +49,7 @@ export function TaskBar() {
         <span className="taskbar-icon">🗒️</span>
         <input
           value={text}
+          enterKeyHint="go"
           placeholder="give the team a task…"
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
